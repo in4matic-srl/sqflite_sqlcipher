@@ -1,9 +1,9 @@
 import 'dart:io';
 
+import 'package:flutter/services.dart';
 import 'package:sqflite_common/sqlite_api.dart';
 import 'package:sqflite_common/src/exception.dart'; // ignore: implementation_imports
 import 'package:sqflite_sqlcipher/src/database_sql_cipher_impl.dart';
-import 'package:flutter/services.dart';
 
 import 'sqflite_import.dart';
 import 'sqflite_sql_cipher_impl.dart';
@@ -15,6 +15,32 @@ DatabaseFactory? _databaseFactory;
 
 /// Default factory
 DatabaseFactory get databaseFactory => sqlfliteSqlCipherDatabaseFactory;
+
+/// Change the default factory.
+///
+/// Be aware of the potential side effect. Any library using sqflite_sqlcipher
+/// will have this factory as the default for all operations.
+///
+/// This setter must be call only once, before any other calls to
+/// sqflite_sqlcipher.
+set databaseFactory(DatabaseFactory? databaseFactory) {
+  // Warn when changing. might throw in the future
+  if (databaseFactory != null) {
+    if (_databaseFactory != null) {
+      stderr.writeln('''
+*** sqflite warning ***
+You are changing sqflite default factory.
+Be aware of the potential side effects. Any library using sqflite
+will have this factory as the default for all operations.
+*** sqflite warning ***
+''');
+    }
+    _databaseFactory = databaseFactory;
+  } else {
+    /// Will use the default factory
+    _databaseFactory = null;
+  }
+}
 
 /// Default factory
 DatabaseFactory get sqlfliteSqlCipherDatabaseFactory =>
